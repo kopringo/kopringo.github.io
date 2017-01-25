@@ -1,8 +1,39 @@
 <html>
 	<head>
 		<script type="text/javascript">
+		
+		function toggleFullScreen(elem) {
+		    // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+		    if ((document.fullScreenElement !== undefined && document.fullScreenElement === null) || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null) || (document.mozFullScreen !== undefined && !document.mozFullScreen) || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
+		        if (elem.requestFullScreen) {
+		            elem.requestFullScreen();
+		        } else if (elem.mozRequestFullScreen) {
+		            elem.mozRequestFullScreen();
+		        } else if (elem.webkitRequestFullScreen) {
+		            elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+		        } else if (elem.msRequestFullscreen) {
+		            elem.msRequestFullscreen();
+		        }
+		    } else {
+		        if (document.cancelFullScreen) {
+		            document.cancelFullScreen();
+		        } else if (document.mozCancelFullScreen) {
+		            document.mozCancelFullScreen();
+		        } else if (document.webkitCancelFullScreen) {
+		            document.webkitCancelFullScreen();
+		        } else if (document.msExitFullscreen) {
+		            document.msExitFullscreen();
+		        }
+		    }
+		}
+		
+		
+		var windowHeight = window.innerHeight;
+		var windowWidth = window.innerWidth;
+		
 		window.addEventListener("DOMContentLoaded", function() {
-			console.log('lets go..');
+			
+			
 			
 			// Grab elements, create settings, etc.
 			var canvas = document.getElementById("canvas"),
@@ -13,27 +44,46 @@
 					console.log("Video capture error: ", error.code); 
 				};
 
+			navigator.getUserMedia = navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia;
+			
+			if (navigator.getUserMedia) {
+				navigator.getUserMedia({ audio: true, video: { width: 1280, height: 720 } },
+					      function(stream) {
+					         video.srcObject = stream;
+					         video.onloadedmetadata = function(e) {
+					           video.play();
+					         };
+					      },
+					      function(err) {
+					         console.log("The following error occurred: " + err.name);
+					      }
+					   );
+			} else {
+				console.log("getUserMedia not supported");
+			}
+				
+			/*
 			// Put video listeners into place
 			if(navigator.getUserMedia) { // Standard
-				console.log('1');
 				navigator.getUserMedia(videoObj, function(stream) {
 					video.src = stream;
 					video.play();
 				}, errBack);
 			} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
-				console.log('2');
 				navigator.webkitGetUserMedia(videoObj, function(stream){
 					video.src = window.webkitURL.createObjectURL(stream);
 					video.play();
 				}, errBack);
 			}
 			else if(navigator.mozGetUserMedia) { // Firefox-prefixed
-				console.log('3');
 				navigator.mozGetUserMedia(videoObj, function(stream){
 					video.src = window.URL.createObjectURL(stream);
 					video.play();
 				}, errBack);
 			}
+			*/
 			
 			document.getElementById("snap").addEventListener("click", function() {
 				context.drawImage(video, 0, 0, 640, 480);
@@ -56,6 +106,10 @@
 			document.getElementById("e6").addEventListener("click", function() {
 				document.getElementById("image").src = 'photos/e6.jpg';
 			});
+			
+			document.getElementById("e7").addEventListener("click", function() {
+				document.getElementById("image").src = 'photos/e6.jpg';
+			});
 		}, false);
 		
 		
@@ -63,6 +117,8 @@
 	</head>
 	
 	<body>
+		<input type="button" value="click to toggle fullscreen" onclick="toggleFullScreen(document.body)">
+	
 		<div style="position: absolute; overflow: hidden; width: 640px; height: 480px;">
 			<img style="position: absolute; width: 640px;" id="image" src="photos/e1.jpg"></img>
 		</div>
@@ -83,6 +139,10 @@
 		<button id="e4">E4</button>
 		<button id="e5">E5</button>
 		<button id="e6">E6</button>
+		
+		<button id="e7">S</button>
+		
+		
 		<canvas id="canvas" width="640" height="480"></canvas>
 	</body>
 
