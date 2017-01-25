@@ -1,6 +1,16 @@
 <html>
 	<head>
+		<script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 		<script type="text/javascript">
+		
+		$(function(){
+			
+			var $images = $('#images');
+			
+			for(var i=1; i<=27; i++){
+				$('<img src="photos/e'+ i +'.jpg" class="image-thumb" data-photo="e'+ i +'"/>').appendTo($images);
+			}
+		});
 		
 		function toggleFullScreen(elem) {
 		    // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
@@ -30,6 +40,8 @@
 		
 		var windowHeight = window.innerHeight;
 		var windowWidth = window.innerWidth;
+		
+		alert(window.innerHeight);
 		
 		window.addEventListener("DOMContentLoaded", function() {
 			
@@ -114,9 +126,30 @@
 		
 		
 		</script>
+		<style>
+		#images{
+			padding: 10px;
+		}
+		img.image-thumb{
+			width: 100%;
+			margin-bottom: 10px;
+		}
+		button{
+			height: 50px;
+			width: 150px;
+			
+		}
+		</style>
+		
 	</head>
 	
 	<body>
+		<div id="images">
+		
+		</div>
+		
+		<img src="photos/e2.jpg" class="image-thumb" data-photo=""/>
+		
 		<input type="button" value="click to toggle fullscreen" onclick="toggleFullScreen(document.body)">
 	
 		<div style="position: absolute; overflow: hidden; width: 640px; height: 480px;">
@@ -125,13 +158,7 @@
 		<video id="video" width="640" height="480" autoplay style="opacity: 0.5;"></video>
 		
 		<br/><br/>
-		<style>
-		button{
-			height: 50px;
-			width: 150px;
-			
-		}
-		</style>
+		
 		<button id="snap">Snap Photo</button>
 		<button id="e1">E1</button>
 		<button id="e2">E2</button>
