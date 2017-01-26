@@ -8,11 +8,82 @@
 		$(function(){
 			
 			var $images = $('#images');
+			var $camera = $('#camera');
+			
+			var canvas = document.getElementById("canvas");
+			var context = canvas.getContext("2d");
+			var video = document.getElementById("camera-preview"),
+				videoObj = { "video": true },
+				errBack = function(error) {
+					console.log("Video capture error: ", error.code); 
+				};
+			
 			
 			for(var i=1; i<=27; i++){
-				$('<img src="photos/e'+ i +'.jpg" class="image-thumb" data-photo="e'+ i +'"/>').appendTo($images);
+				$('<img src="photos/e'+ i +'.jpg" class="image-thumb" data-photo="'+ i +'"/>').appendTo($images);
 			}
+			
+			navigator.getUserMedia = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia;
+		
+			if (navigator.getUserMedia) {
+				navigator.getUserMedia({ audio: true, video: { width: 1280, height: 720 } },
+					      function(stream) {
+					         video.srcObject = stream;
+					         video.onloadedmetadata = function(e) {
+					           video.play();
+					         };
+					      },
+					      function(err) {
+					         console.log("The following error occurred: " + err.name);
+					      }
+					   );
+			} else {
+				console.log("getUserMedia not supported");
+			}
+			
+			document.getElementById("snap").addEventListener("click", function() {
+				context.drawImage(video, 0, 0, 640, 480);
+			});
+			
+			function openCamera(photo){
+				$camera.removeClass('hidden');
+				$images.addClass('hidden');
+				$("#camera-background").attr('src', 'photos/e' + photo + '.jpg');
+				
+				var windowHeight = window.innerHeight;
+				var windowWidth = window.innerWidth;
+				
+				var width = $("#camera-background").width();
+				var height = $("#camera-background").height();
+				
+				var r = width/height;
+				
+				var newWidth = windowWidth;
+				var newHeight = windowWidth * height / width;
+				if(newHeight > windowHeight){
+					
+					newHeight = windowHeight;
+					newWidth = windowHeight / height * width;
+				}
+				
+				$("#camera-background").css({'width': newWidth, 'height': newHeight})
+				$("#camera-background").removeClass('hidden');
+			}
+			
+			$(document).on('click', '.image-thumb', function(){
+				$("#camera-background").addClass('hidden');
+				toggleFullScreen(document.body);
+				var photo = $(this).data('photo');
+				setTimeout(function(){
+					openCamera(photo);
+				}, 200);
+				
+			});
 		});
+		
+		
 		
 		function toggleFullScreen(elem) {
 		    // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
@@ -40,97 +111,20 @@
 		}
 		
 		
-		var windowHeight = window.innerHeight;
-		var windowWidth = window.innerWidth;
 		
-		alert(window.innerHeight);
 		
-		window.addEventListener("DOMContentLoaded", function() {
-			
-			
-			
-			// Grab elements, create settings, etc.
-			var canvas = document.getElementById("canvas"),
-				context = canvas.getContext("2d"),
-				video = document.getElementById("video"),
-				videoObj = { "video": true },
-				errBack = function(error) {
-					console.log("Video capture error: ", error.code); 
-				};
-
-			navigator.getUserMedia = navigator.getUserMedia ||
-                navigator.webkitGetUserMedia ||
-                navigator.mozGetUserMedia;
-			
-			if (navigator.getUserMedia) {
-				navigator.getUserMedia({ audio: true, video: { width: 1280, height: 720 } },
-					      function(stream) {
-					         video.srcObject = stream;
-					         video.onloadedmetadata = function(e) {
-					           video.play();
-					         };
-					      },
-					      function(err) {
-					         console.log("The following error occurred: " + err.name);
-					      }
-					   );
-			} else {
-				console.log("getUserMedia not supported");
-			}
-				
-			/*
-			// Put video listeners into place
-			if(navigator.getUserMedia) { // Standard
-				navigator.getUserMedia(videoObj, function(stream) {
-					video.src = stream;
-					video.play();
-				}, errBack);
-			} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
-				navigator.webkitGetUserMedia(videoObj, function(stream){
-					video.src = window.webkitURL.createObjectURL(stream);
-					video.play();
-				}, errBack);
-			}
-			else if(navigator.mozGetUserMedia) { // Firefox-prefixed
-				navigator.mozGetUserMedia(videoObj, function(stream){
-					video.src = window.URL.createObjectURL(stream);
-					video.play();
-				}, errBack);
-			}
-			*/
-			
-			document.getElementById("snap").addEventListener("click", function() {
-				context.drawImage(video, 0, 0, 640, 480);
-			});
-			document.getElementById("e1").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e1.jpg';
-			});
-			document.getElementById("e2").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e2.jpg';
-			});
-			document.getElementById("e3").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e3.jpg';
-			});
-			document.getElementById("e4").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e4.jpg';
-			});
-			document.getElementById("e5").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e5.jpg';
-			});
-			document.getElementById("e6").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e6.jpg';
-			});
-			
-			document.getElementById("e7").addEventListener("click", function() {
-				document.getElementById("image").src = 'photos/e6.jpg';
-			});
-		}, false);
+		
+		
 		
 		
 		</script>
 		<style>
+		.hidden{
+			display: none;
+		}
 		#images{
 			padding: 10px;
+			max-width: 1180px;
 		}
 		img.image-thumb{
 			width: 100%;
@@ -141,37 +135,33 @@
 			width: 150px;
 			
 		}
+		
+		#camera-background,
+		#camera-preview{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			right: 0px;
+			bottom: 0px;
+		}
+		#camera-preview{
+			opacity: 0.5;
+		}
 		</style>
 		
 	</head>
 	
 	<body>
-		<div id="images">
-		
+		<div id="images"></div>
+		<div id="camera" class="hidden">
+			<!-- <div style="position: absolute; overflow: hidden; width: 640px; height: 480px;"> -->
+				<img id="camera-background" src=""></img>
+			<!-- </div> -->
+			<video id="camera-preview" autoplay></video>
 		</div>
 		
-		<img src="photos/e2.jpg" class="image-thumb" data-photo=""/>
-		
-		<input type="button" value="click to toggle fullscreen" onclick="toggleFullScreen(document.body)">
-	
-		<div style="position: absolute; overflow: hidden; width: 640px; height: 480px;">
-			<img style="position: absolute; width: 640px;" id="image" src="photos/e1.jpg"></img>
-		</div>
-		<video id="video" width="640" height="480" autoplay style="opacity: 0.5;"></video>
-		
-		<br/><br/>
-		
+			
 		<button id="snap">Snap Photo</button>
-		<button id="e1">E1</button>
-		<button id="e2">E2</button>
-		<button id="e3">E3</button>
-		<button id="e4">E4</button>
-		<button id="e5">E5</button>
-		<button id="e6">E6</button>
-		
-		<button id="e7">S</button>
-		
-		
 		<canvas id="canvas" width="640" height="480"></canvas>
 	</body>
 
